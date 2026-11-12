@@ -1,0 +1,1712 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escape Room: Petualangan Tiko & Siklus Air - IPAS Kelas 5</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka & Nunito untuk tampilan ceria ramah anak SD -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tone.js untuk efek suara sintetis tanpa URL eksternal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <style>
+        :root {
+            --sky-light: #e0f2fe;
+            --sky-main: #0284c7;
+            --sun-yellow: #facc15;
+            --leaf-green: #22c55e;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 45%, #dcfce7 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #1e293b;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Animasi Tiko si Tetes Air */
+        @keyframes floatBounce {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+
+        @keyframes blinkEyes {
+            0%, 92%, 100% { transform: scaleY(1); }
+            96% { transform: scaleY(0.1); }
+        }
+
+        @keyframes cloudDrift {
+            0% { transform: translateX(-20px); }
+            50% { transform: translateX(25px); }
+            100% { transform: translateX(-20px); }
+        }
+
+        @keyframes rainFall {
+            0% { transform: translateY(0px); opacity: 0.9; }
+            100% { transform: translateY(35px); opacity: 0; }
+        }
+
+        @keyframes steamRise {
+            0% { transform: translateY(0px) scale(0.9); opacity: 0.85; }
+            100% { transform: translateY(-35px) scale(1.15); opacity: 0; }
+        }
+
+        @keyframes sunSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes shakeWrong {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .tiko-float {
+            animation: floatBounce 3s ease-in-out infinite;
+        }
+
+        .tiko-eye {
+            transform-origin: center;
+            animation: blinkEyes 4s infinite;
+        }
+
+        .cloud-anim {
+            animation: cloudDrift 7s ease-in-out infinite;
+        }
+
+        .rain-drop {
+            animation: rainFall 1.4s linear infinite;
+        }
+
+        .steam-wave {
+            animation: steamRise 1.8s ease-out infinite;
+        }
+
+        .sun-rays {
+            transform-origin: 75px 55px;
+            animation: sunSpin 22s linear infinite;
+        }
+
+        .animate-pop {
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .animate-shake {
+            animation: shakeWrong 0.45s ease-in-out;
+        }
+
+        /* Gaya Tombol 3D Ramah Anak */
+        .btn-kid {
+            transition: all 0.15s ease;
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.18);
+        }
+
+        .btn-kid:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 rgba(0, 0, 0, 0.18);
+        }
+
+        .btn-kid:active:not(:disabled) {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+        }
+
+        .btn-kid:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        /* Kartu Kaca Lembut */
+        .game-card {
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(8px);
+            border: 4px solid #ffffff;
+            box-shadow: 0 12px 30px rgba(2, 132, 199, 0.14);
+        }
+
+        /* Kanvas Konfeti */
+        #confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Hotspot Diagram */
+        .hotspot-pulse {
+            animation: pulseRing 2s infinite;
+        }
+
+        @keyframes pulseRing {
+            0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.85); }
+            70% { box-shadow: 0 0 0 14px rgba(250, 204, 21, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
+        }
+    </style>
+</head>
+<body class="pb-12 selection:bg-sky-200 selection:text-sky-900">
+
+    <!-- Kanvas untuk perayaan konfeti -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Dekorasi Latar Awan -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden z-0 opacity-60">
+        <svg class="absolute top-12 left-6 w-32 h-20 text-white cloud-anim" viewBox="0 0 120 70" fill="currentColor">
+            <path d="M25,55 H95 A20,20 0 0,0 95,15 A25,25 0 0,0 50,12 A22,22 0 0,0 25,55 Z"/>
+        </svg>
+        <svg class="absolute top-28 right-10 w-40 h-24 text-white cloud-anim" style="animation-delay: -3s;" viewBox="0 0 120 70" fill="currentColor">
+            <path d="M25,55 H95 A20,20 0 0,0 95,15 A25,25 0 0,0 50,12 A22,22 0 0,0 25,55 Z"/>
+        </svg>
+    </div>
+
+    <!-- HEADER GAMIFIKASI & BILAH PROGRES (Muncul setelah slide pembuka) -->
+    <header id="game-hud" class="hidden sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-4 border-sky-200 shadow-md px-3 py-2.5 sm:px-6">
+        <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <!-- Identitas Pemain -->
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-full bg-sky-100 border-2 border-sky-400 flex items-center justify-center shadow-inner">
+                    <span class="text-xl">💧</span>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-sky-600 uppercase tracking-wider">Petualang IPAS</p>
+                    <p id="hud-player-name" class="font-display font-bold text-slate-800 text-sm sm:text-base leading-tight">Murid Kelas 5</p>
+                </div>
+            </div>
+
+            <!-- Bilah Progres Tahapan -->
+            <div class="flex-1 max-w-md mx-2 order-3 sm:order-2 w-full sm:w-auto">
+                <div class="flex justify-between text-xs font-extrabold text-sky-800 mb-1">
+                    <span id="hud-stage-label">Tahap 1: Tujuan Belajar</span>
+                    <span id="hud-progress-pct">15%</span>
+                </div>
+                <div class="w-full h-3.5 bg-sky-100 rounded-full overflow-hidden border border-sky-300 p-0.5">
+                    <div id="hud-progress-bar" class="h-full bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400 rounded-full transition-all duration-500" style="width: 15%"></div>
+                </div>
+            </div>
+
+            <!-- Poin Bintang & Koleksi 4 Kunci -->
+            <div class="flex items-center gap-2 sm:gap-3 order-2 sm:order-3">
+                <!-- Poin -->
+                <div class="bg-amber-100 border-2 border-amber-400 rounded-2xl px-3 py-1 flex items-center gap-1.5 shadow-sm" title="Poin Bintang">
+                    <span class="text-base sm:text-lg">⭐</span>
+                    <span id="hud-score" class="font-display font-bold text-amber-800 text-sm sm:text-base">0</span>
+                </div>
+
+                <!-- 4 Kunci Elemen Air -->
+                <div class="bg-sky-50 border-2 border-sky-300 rounded-2xl px-2.5 py-1 flex items-center gap-1" title="Kunci Ruangan Terkumpul">
+                    <span id="key-badge-1" class="text-base opacity-30 transition-all duration-300" title="Kunci Uap">🔑</span>
+                    <span id="key-badge-2" class="text-base opacity-30 transition-all duration-300" title="Kunci Awan">🔑</span>
+                    <span id="key-badge-3" class="text-base opacity-30 transition-all duration-300" title="Kunci Hujan">🔑</span>
+                    <span id="key-badge-4" class="text-base opacity-30 transition-all duration-300" title="Kunci Penjaga">🔑</span>
+                </div>
+
+                <!-- Tombol Suara -->
+                <button id="btn-sound-toggle" onclick="toggleSound()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 flex items-center justify-center text-slate-700 transition" title="Hidupkan/Matikan Suara">
+                    🔊
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- KONTAINER UTAMA -->
+    <main class="relative z-10 max-w-5xl mx-auto px-4 pt-6 sm:pt-8">
+
+        <!-- MASKOT TIKO FLOATING HELPER (Muncul di bagian pembelajaran & ruangan) -->
+        <div id="tiko-helper-bar" class="hidden mb-6 animate-pop">
+            <div class="bg-white/95 border-4 border-sky-300 rounded-3xl p-3 sm:p-4 shadow-lg flex items-center gap-3 sm:gap-4">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 tiko-float" id="tiko-avatar-slot">
+                    <!-- SVG Tiko dirender lewat JS -->
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="bg-sky-500 text-white text-xs font-extrabold px-2.5 py-0.5 rounded-full">Tiko si Tetes Air</span>
+                        <span id="tiko-mood-tag" class="text-xs font-bold text-emerald-600">Siap Membantu!</span>
+                    </div>
+                    <p id="tiko-speech-text" class="text-slate-700 font-bold text-sm sm:text-base leading-snug">
+                        Halo teman! Ayo kita pecahkan misteri siklus air bersama-sama!
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===================================================================== -->
+        <!-- BAGIAN 1: SLIDE PEMBUKA & IDENTITAS                                   -->
+        <!-- ===================================================================== -->
+        <section id="section-1-intro" class="game-card rounded-[2rem] p-6 sm:p-10 text-center animate-pop">
+            <div class="inline-flex items-center gap-2 bg-amber-300 text-amber-950 font-display font-bold px-4 py-1.5 rounded-full text-sm sm:text-base shadow-sm mb-4">
+                <span>🏫</span> Mata Pelajaran IPAS • Kelas 5 SD
+            </div>
+
+            <h1 class="text-3xl sm:text-5xl font-extrabold text-sky-700 tracking-tight mb-2 drop-shadow-sm">
+                Escape Room: Petualangan Tiko & Siklus Air
+            </h1>
+            <p class="text-slate-600 font-bold text-base sm:text-lg max-w-2xl mx-auto mb-6">
+                Bantu <span class="text-sky-600 font-extrabold">Tiko si Tetes Air</span> membuka 4 ruangan misteri alam dan lolos dari Gerbang Kebebasan!
+            </p>
+
+            <!-- Ilustrasi Besar Tiko di Slide Pembuka -->
+            <div class="w-40 h-44 sm:w-48 sm:h-52 mx-auto mb-6 tiko-float" id="intro-tiko-svg"></div>
+
+            <!-- Form Identitas Murid -->
+            <div class="max-w-md mx-auto bg-sky-50 border-3 border-sky-200 rounded-3xl p-5 sm:p-6 shadow-inner text-left">
+                <h2 class="font-display font-bold text-sky-800 text-lg mb-3 text-center">📝 Isi Identitas Petualang Dulu Yuk!</h2>
+
+                <div class="mb-3">
+                    <label for="input-player-name" class="block text-sm font-extrabold text-slate-700 mb-1">Nama Lengkapmu:</label>
+                    <input type="text" id="input-player-name" placeholder="Contoh: Budi Santoso" maxlength="30"
+                        class="w-full px-4 py-3 rounded-2xl border-2 border-sky-300 focus:border-sky-500 focus:outline-none font-bold text-slate-800 bg-white text-base">
+                </div>
+
+                <div class="mb-4">
+                    <label for="input-player-class" class="block text-sm font-extrabold text-slate-700 mb-1">Kelas:</label>
+                    <input type="text" id="input-player-class" value="Kelas 5" maxlength="20"
+                        class="w-full px-4 py-3 rounded-2xl border-2 border-sky-300 focus:border-sky-500 focus:outline-none font-bold text-slate-800 bg-white text-base">
+                </div>
+
+                <p id="intro-error-msg" class="hidden text-rose-600 font-bold text-sm mb-3 text-center bg-rose-100 py-1.5 px-3 rounded-xl">
+                    ⚠️ Tuliskan namamu terlebih dahulu ya agar Tiko bisa mengenalimu!
+                </p>
+
+                <button onclick="startAdventure()" class="btn-kid w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-500 hover:to-green-600 text-white font-display font-bold text-xl tracking-wide flex items-center justify-center gap-2">
+                    <span>🚀</span> Mulai Petualangan!
+                </button>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- BAGIAN 2: TUJUAN PEMBELAJARAN                                         -->
+        <!-- ===================================================================== -->
+        <section id="section-2-objectives" class="hidden game-card rounded-[2rem] p-6 sm:p-8 animate-pop">
+            <div class="text-center mb-6">
+                <span class="bg-sky-100 text-sky-700 font-display font-bold px-4 py-1 rounded-full text-sm">Misi Belajar Hari Ini</span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-sky-800 mt-2">🎯 Tujuan Pembelajaran</h2>
+                <p class="text-slate-600 font-semibold mt-1">Setelah menyelesaikan petualangan Escape Room ini, kamu akan mampu:</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <!-- Tujuan 1 -->
+                <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-4 flex items-start gap-3.5 hover:scale-[1.01] transition">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-500 text-white font-display font-bold text-xl flex items-center justify-center flex-shrink-0 shadow">1</div>
+                    <div>
+                        <h3 class="font-display font-bold text-sky-900 text-lg">Pengertian Siklus Air</h3>
+                        <p class="text-slate-600 text-sm font-semibold">Menjelaskan pengertian siklus air sebagai perputaran air secara terus-menerus di bumi.</p>
+                    </div>
+                </div>
+
+                <!-- Tujuan 2 -->
+                <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 flex items-start gap-3.5 hover:scale-[1.01] transition">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-400 text-amber-950 font-display font-bold text-xl flex items-center justify-center flex-shrink-0 shadow">2</div>
+                    <div>
+                        <h3 class="font-display font-bold text-amber-900 text-lg">4 Proses Utama Siklus Air</h3>
+                        <p class="text-slate-600 text-sm font-semibold">Mengidentifikasi proses <b>evaporasi, kondensasi, presipitasi,</b> dan <b>infiltrasi</b>.</p>
+                    </div>
+                </div>
+
+                <!-- Tujuan 3 -->
+                <div class="bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-4 flex items-start gap-3.5 hover:scale-[1.01] transition">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-500 text-white font-display font-bold text-xl flex items-center justify-center flex-shrink-0 shadow">3</div>
+                    <div>
+                        <h3 class="font-display font-bold text-indigo-900 text-lg">Urutan Siklus Air</h3>
+                        <p class="text-slate-600 text-sm font-semibold">Menjelaskan urutan sederhana perjalanan air dari laut ke awan hingga kembali ke bumi.</p>
+                    </div>
+                </div>
+
+                <!-- Tujuan 4 -->
+                <div class="bg-rose-50 border-2 border-rose-200 rounded-2xl p-4 flex items-start gap-3.5 hover:scale-[1.01] transition">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-500 text-white font-display font-bold text-xl flex items-center justify-center flex-shrink-0 shadow">4</div>
+                    <div>
+                        <h3 class="font-display font-bold text-rose-900 text-lg">Hubungan Sehari-hari</h3>
+                        <p class="text-slate-600 text-sm font-semibold">Menghubungkan peristiwa siklus air dengan kejadian di kehidupan sehari-hari.</p>
+                    </div>
+                </div>
+
+                <!-- Tujuan 5 -->
+                <div class="md:col-span-2 bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-4 flex items-start gap-3.5 hover:scale-[1.01] transition">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white font-display font-bold text-xl flex items-center justify-center flex-shrink-0 shadow">5</div>
+                    <div>
+                        <h3 class="font-display font-bold text-emerald-900 text-lg">Menjaga Ketersediaan Air Bersih</h3>
+                        <p class="text-slate-600 text-sm font-semibold">Menunjukkan perilaku bijak dalam menghemat dan menjaga kelestarian air bersih.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-center">
+                <button onclick="goToSection(3)" class="btn-kid px-8 py-4 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-display font-bold text-lg sm:text-xl flex items-center gap-2">
+                    <span>🗺️</span> Lanjut ke Peta Materi Siklus Air!
+                </button>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- BAGIAN 3: MATERI INTI SINGKAT (DIAGRAM EKSPLORASI INTERAKTIF)         -->
+        <!-- ===================================================================== -->
+        <section id="section-3-material" class="hidden game-card rounded-[2rem] p-5 sm:p-8 animate-pop">
+            <div class="text-center mb-5">
+                <span class="bg-emerald-100 text-emerald-800 font-display font-bold px-4 py-1 rounded-full text-sm">Bekal Sebelum Masuk Ruangan</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-sky-800 mt-2">🌍 Jelajahi Rahasia Siklus Air</h2>
+                <p class="text-slate-600 font-semibold text-sm sm:text-base">Klik semua <b>6 tombol kartu/titik</b> di bawah ini untuk mengumpulkan bekal ilmu (+60 Poin)!</p>
+            </div>
+
+            <!-- Diagram SVG Interaktif Siklus Air -->
+            <div class="relative bg-gradient-to-b from-sky-300 via-sky-100 to-emerald-100 rounded-3xl border-4 border-sky-300 overflow-hidden shadow-inner mb-6">
+                <svg viewBox="0 0 800 390" class="w-full h-auto block select-none">
+                    <!-- Langit & Matahari -->
+                    <g class="sun-rays">
+                        <circle cx="75" cy="55" r="42" fill="#fef08a" opacity="0.5"/>
+                        <line x1="75" y1="5" x2="75" y2="105" stroke="#facc15" stroke-width="5" stroke-linecap="round"/>
+                        <line x1="25" y1="55" x2="125" y2="55" stroke="#facc15" stroke-width="5" stroke-linecap="round"/>
+                        <line x1="40" y1="20" x2="110" y2="90" stroke="#facc15" stroke-width="5" stroke-linecap="round"/>
+                        <line x1="110" y1="20" x2="40" y2="90" stroke="#facc15" stroke-width="5" stroke-linecap="round"/>
+                    </g>
+                    <circle cx="75" cy="55" r="28" fill="#facc15" stroke="#eab308" stroke-width="4"/>
+
+                    <!-- Awan Kondensasi -->
+                    <g class="cloud-anim">
+                        <path d="M230,95 H370 A28,28 0 0,0 370,40 A36,36 0 0,0 305,34 A30,30 0 0,0 230,95 Z" fill="#ffffff" stroke="#bae6fd" stroke-width="3"/>
+                        <path d="M470,105 H635 A32,32 0 0,0 635,42 A40,40 0 0,0 560,35 A34,34 0 0,0 470,105 Z" fill="#94a3b8" stroke="#64748b" stroke-width="3"/>
+                    </g>
+
+                    <!-- Gunung & Daratan Hijau -->
+                    <polygon points="430,310 580,145 730,310" fill="#65a30d"/>
+                    <polygon points="545,184 580,145 615,184" fill="#ffffff"/>
+                    <path d="M360,310 Q550,260 800,295 L800,390 L360,390 Z" fill="#22c55e"/>
+                    <!-- Lapisan Tanah Bawah -->
+                    <path d="M360,335 Q550,305 800,330 L800,390 L360,390 Z" fill="#92400e"/>
+
+                    <!-- Pohon-pohon -->
+                    <g transform="translate(660, 245)">
+                        <rect x="12" y="25" width="8" height="22" fill="#78350f"/>
+                        <circle cx="16" cy="18" r="18" fill="#15803d"/>
+                    </g>
+                    <g transform="translate(715, 255)">
+                        <rect x="12" y="25" width="8" height="22" fill="#78350f"/>
+                        <circle cx="16" cy="18" r="16" fill="#16a34a"/>
+                    </g>
+
+                    <!-- Lautan -->
+                    <path d="M0,300 Q100,285 200,300 T400,300 L400,390 L0,390 Z" fill="#0284c7"/>
+                    <path d="M0,320 Q90,310 180,320 T380,320" fill="none" stroke="#7dd3fc" stroke-width="3" stroke-linecap="round"/>
+
+                    <!-- Animasi Uap Naik (Evaporasi) -->
+                    <g class="steam-wave">
+                        <path d="M130,275 Q120,255 130,235 Q140,215 130,195" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M180,275 Q170,255 180,235 Q190,215 180,195" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M230,275 Q220,255 230,235 Q240,215 230,195" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                    </g>
+
+                    <!-- Panah Alur Siklus -->
+                    <path d="M185,180 L235,115" stroke="#facc15" stroke-width="4" stroke-dasharray="6,6" marker-end="url(#arrow)"/>
+                    <path d="M395,70 L455,70" stroke="#facc15" stroke-width="4" stroke-dasharray="6,6"/>
+
+                    <!-- Animasi Hujan (Presipitasi) -->
+                    <g class="rain-drop" fill="#38bdf8">
+                        <circle cx="510" cy="130" r="4"/>
+                        <circle cx="545" cy="145" r="4"/>
+                        <circle cx="580" cy="125" r="4"/>
+                        <circle cx="615" cy="140" r="4"/>
+                        <circle cx="530" cy="175" r="4"/>
+                        <circle cx="595" cy="170" r="4"/>
+                    </g>
+
+                    <!-- Panah Infiltrasi ke Tanah -->
+                    <path d="M635,310 L635,365" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/>
+                    <polygon points="627,360 643,360 635,374" fill="#38bdf8"/>
+                </svg>
+
+                <!-- Tombol Hotspot Interaktif di atas Diagram -->
+                <button onclick="exploreTopic('evaporasi')" id="btn-topic-evaporasi"
+                    class="hotspot-pulse absolute bottom-[24%] left-[12%] sm:left-[16%] bg-amber-400 hover:bg-amber-300 text-amber-950 font-display font-bold text-xs sm:text-sm px-3 py-1.5 rounded-full border-2 border-white shadow-lg transition transform hover:scale-105">
+                    1️⃣ Evaporasi ☀️
+                </button>
+
+                <button onclick="exploreTopic('kondensasi')" id="btn-topic-kondensasi"
+                    class="hotspot-pulse absolute top-[14%] left-[31%] sm:left-[34%] bg-sky-600 hover:bg-sky-500 text-white font-display font-bold text-xs sm:text-sm px-3 py-1.5 rounded-full border-2 border-white shadow-lg transition transform hover:scale-105">
+                    2️⃣ Kondensasi ☁️
+                </button>
+
+                <button onclick="exploreTopic('presipitasi')" id="btn-topic-presipitasi"
+                    class="hotspot-pulse absolute top-[32%] right-[16%] sm:right-[20%] bg-indigo-600 hover:bg-indigo-500 text-white font-display font-bold text-xs sm:text-sm px-3 py-1.5 rounded-full border-2 border-white shadow-lg transition transform hover:scale-105">
+                    3️⃣ Presipitasi 🌧️
+                </button>
+
+                <button onclick="exploreTopic('infiltrasi')" id="btn-topic-infiltrasi"
+                    class="hotspot-pulse absolute bottom-[6%] right-[14%] sm:right-[18%] bg-emerald-600 hover:bg-emerald-500 text-white font-display font-bold text-xs sm:text-sm px-3 py-1.5 rounded-full border-2 border-white shadow-lg transition transform hover:scale-105">
+                    4️⃣ Infiltrasi 🌱
+                </button>
+            </div>
+
+            <!-- 2 Kartu Tambahan: Pengertian Siklus Air & Menjaga Air Bersih -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                <button onclick="exploreTopic('pengertian')" id="btn-topic-pengertian"
+                    class="p-3.5 rounded-2xl bg-sky-100 hover:bg-sky-200 border-2 border-sky-400 text-left flex items-center justify-between transition">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🔄</span>
+                        <div>
+                            <p class="font-display font-bold text-sky-900 text-base">Apa itu Siklus Air?</p>
+                            <p class="text-xs font-bold text-sky-700">Klik untuk membaca pengertiannya</p>
+                        </div>
+                    </div>
+                    <span id="check-topic-pengertian" class="text-lg">🔍</span>
+                </button>
+
+                <button onclick="exploreTopic('hemat')" id="btn-topic-hemat"
+                    class="p-3.5 rounded-2xl bg-emerald-100 hover:bg-emerald-200 border-2 border-emerald-400 text-left flex items-center justify-between transition">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">🚰</span>
+                        <div>
+                            <p class="font-display font-bold text-emerald-900 text-base">Cara Menjaga Air Bersih</p>
+                            <p class="text-xs font-bold text-emerald-700">Klik untuk tips menjaga air</p>
+                        </div>
+                    </div>
+                    <span id="check-topic-hemat" class="text-lg">🔍</span>
+                </button>
+            </div>
+
+            <!-- Panel Penjelasan Materi Dinamis -->
+            <div id="material-detail-box" class="bg-amber-50 border-3 border-amber-300 rounded-3xl p-5 mb-6 transition-all">
+                <div class="flex items-center gap-2 mb-1">
+                    <span id="mat-icon" class="text-2xl">💡</span>
+                    <h3 id="mat-title" class="font-display font-bold text-amber-900 text-xl">Pilih Salah Satu Tombol di Atas!</h3>
+                </div>
+                <p id="mat-desc" class="text-slate-700 font-semibold text-sm sm:text-base leading-relaxed">
+                    Klik tombol <b>Evaporasi, Kondensasi, Presipitasi, Infiltrasi, Apa itu Siklus Air,</b> dan <b>Cara Menjaga Air Bersih</b> untuk membuka kunci pintu tantangan Escape Room!
+                </p>
+                <div id="mat-example" class="hidden mt-2.5 bg-white/90 rounded-xl px-3.5 py-2 border border-amber-200 text-xs sm:text-sm font-bold text-sky-800"></div>
+            </div>
+
+            <!-- Progres Eksplorasi & Tombol Masuk Escape Room -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-100 p-4 rounded-2xl">
+                <p class="font-bold text-slate-700 text-sm sm:text-base">
+                    Kartu Dipelajari: <span id="explored-count" class="text-sky-600 font-extrabold text-lg">0 / 6</span>
+                </p>
+                <button id="btn-enter-escaperoom" onclick="goToSection(4)" disabled
+                    class="btn-kid w-full sm:w-auto px-7 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-white font-display font-bold text-lg flex items-center justify-center gap-2">
+                    <span>🔐</span> Pelajari Semua Kartu Dulu (0/6)
+                </button>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- BAGIAN 4: AKTIVITAS INTERAKTIF (ESCAPE ROOM 4 RUANGAN TERKUNCI)       -->
+        <!-- ===================================================================== -->
+        <section id="section-4-escaperoom" class="hidden game-card rounded-[2rem] p-5 sm:p-8 animate-pop">
+            <div class="text-center mb-6">
+                <span class="bg-rose-100 text-rose-700 font-display font-bold px-4 py-1 rounded-full text-sm">Misi Escape Room</span>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-sky-800 mt-2">🏰 Kumpulkan 4 Kunci Elemen Air!</h2>
+                <p class="text-slate-600 font-semibold text-sm sm:text-base">Selesaikan teka-teki di setiap ruangan untuk membuka <b>Gerbang Evaluasi Akhir</b>.</p>
+            </div>
+
+            <!-- Peta 4 Ruangan Escape Room -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+                <!-- Kartu Ruangan 1 -->
+                <button onclick="openRoom(1)" id="room-card-1"
+                    class="p-4 rounded-3xl border-3 border-amber-400 bg-amber-50 hover:bg-amber-100 text-center transition shadow-sm relative">
+                    <div id="room-status-1" class="text-3xl mb-1">🔓</div>
+                    <p class="text-xs font-extrabold text-amber-700 uppercase">Ruangan 1</p>
+                    <h3 class="font-display font-bold text-slate-800 text-base sm:text-lg">Labu Uap & Awan</h3>
+                    <span id="room-tag-1" class="inline-block mt-2 text-xs font-bold bg-amber-200 text-amber-900 px-2.5 py-0.5 rounded-full">Siap Dimainkan</span>
+                </button>
+
+                <!-- Kartu Ruangan 2 -->
+                <button onclick="openRoom(2)" id="room-card-2" disabled
+                    class="p-4 rounded-3xl border-3 border-slate-300 bg-slate-100 text-center transition shadow-sm relative opacity-65">
+                    <div id="room-status-2" class="text-3xl mb-1">🔒</div>
+                    <p class="text-xs font-extrabold text-slate-500 uppercase">Ruangan 2</p>
+                    <h3 class="font-display font-bold text-slate-800 text-base sm:text-lg">Menara Urutan</h3>
+                    <span id="room-tag-2" class="inline-block mt-2 text-xs font-bold bg-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full">Terkunci</span>
+                </button>
+
+                <!-- Kartu Ruangan 3 -->
+                <button onclick="openRoom(3)" id="room-card-3" disabled
+                    class="p-4 rounded-3xl border-3 border-slate-300 bg-slate-100 text-center transition shadow-sm relative opacity-65">
+                    <div id="room-status-3" class="text-3xl mb-1">🔒</div>
+                    <p class="text-xs font-extrabold text-slate-500 uppercase">Ruangan 3</p>
+                    <h3 class="font-display font-bold text-slate-800 text-base sm:text-lg">Taman Detektif</h3>
+                    <span id="room-tag-3" class="inline-block mt-2 text-xs font-bold bg-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full">Terkunci</span>
+                </button>
+
+                <!-- Kartu Ruangan 4 -->
+                <button onclick="openRoom(4)" id="room-card-4" disabled
+                    class="p-4 rounded-3xl border-3 border-slate-300 bg-slate-100 text-center transition shadow-sm relative opacity-65">
+                    <div id="room-status-4" class="text-3xl mb-1">🔒</div>
+                    <p class="text-xs font-extrabold text-slate-500 uppercase">Ruangan 4</p>
+                    <h3 class="font-display font-bold text-slate-800 text-base sm:text-lg">Gerbang Penjaga</h3>
+                    <span id="room-tag-4" class="inline-block mt-2 text-xs font-bold bg-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full">Terkunci</span>
+                </button>
+            </div>
+
+            <!-- AREA PERMAINAN AKTIF RUANGAN -->
+            <div id="room-workspace" class="bg-sky-50/90 border-4 border-sky-200 rounded-3xl p-5 sm:p-6 min-h-[300px]">
+                <!-- Konten teka-teki ruangan diisi dinamis oleh JavaScript -->
+            </div>
+
+            <!-- Gerbang Keluar Menuju Kuis Evaluasi -->
+            <div id="escape-gate-banner" class="hidden mt-6 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-3xl p-5 text-white text-center shadow-xl animate-pop">
+                <h3 class="font-display font-bold text-2xl mb-1">🎉 Hebat! Keempat Kunci Elemen Air Telah Terkumpul!</h3>
+                <p class="text-emerald-100 font-semibold mb-4">Gerbang Kebebasan sudah terbuka! Ayo selesaikan 10 tantangan terakhir untuk lulus!</p>
+                <button onclick="goToSection(5)" class="btn-kid px-8 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-display font-bold text-xl">
+                    🚪 Buka Gerbang & Mulai Evaluasi (10 Soal)
+                </button>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- BAGIAN 5: KUIS / EVALUASI (10 SOAL PILIHAN GANDA)                     -->
+        <!-- ===================================================================== -->
+        <section id="section-5-quiz" class="hidden game-card rounded-[2rem] p-5 sm:p-8 animate-pop">
+            <!-- Header Kuis -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-5 border-b-2 border-sky-100">
+                <div>
+                    <span class="bg-indigo-100 text-indigo-700 font-display font-bold px-3 py-1 rounded-full text-xs sm:text-sm">Ujian Gerbang Kebebasan</span>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-sky-900 mt-1">Soal <span id="quiz-q-number">1</span> dari 10</h2>
+                </div>
+                <div class="flex items-center gap-1.5" id="quiz-dots-indicator">
+                    <!-- 10 indikator nomor soal -->
+                </div>
+            </div>
+
+            <!-- Teks Pertanyaan -->
+            <div class="bg-sky-50 border-2 border-sky-200 rounded-2xl p-4 sm:p-6 mb-5">
+                <span id="quiz-topic-badge" class="inline-block bg-sky-200 text-sky-800 text-xs font-extrabold px-2.5 py-0.5 rounded-lg mb-2">Topik: Pengertian Siklus Air</span>
+                <p id="quiz-question-text" class="text-slate-800 font-extrabold text-lg sm:text-xl leading-snug">
+                    Pertanyaan akan muncul di sini...
+                </p>
+            </div>
+
+            <!-- Pilihan Jawaban A, B, C, D -->
+            <div id="quiz-options-container" class="grid grid-cols-1 gap-3 mb-5">
+                <!-- Pilihan dirender oleh JS -->
+            </div>
+
+            <!-- Kotak Umpan Balik (Apresiasi jika Benar / Motivasi jika Salah) -->
+            <div id="quiz-feedback-box" class="hidden rounded-3xl p-4 sm:p-5 mb-5 border-3 animate-pop">
+                <div class="flex items-start gap-3">
+                    <div id="quiz-feedback-icon" class="text-3xl sm:text-4xl">🌟</div>
+                    <div class="flex-1">
+                        <h4 id="quiz-feedback-title" class="font-display font-bold text-lg sm:text-xl mb-1">Apresiasi!</h4>
+                        <p id="quiz-feedback-msg" class="font-bold text-sm sm:text-base mb-2"></p>
+                        <div id="quiz-feedback-explain" class="bg-white/80 rounded-xl p-3 text-xs sm:text-sm font-semibold text-slate-700 border border-black/10"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tombol Lanjut Soal -->
+            <div class="flex justify-end">
+                <button id="btn-quiz-next" onclick="nextQuizQuestion()" class="hidden btn-kid px-7 py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-display font-bold text-lg">
+                    Soal Berikutnya ➡️
+                </button>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- BAGIAN 6: UMPAN BALIK AKHIR, REFLEKSI & SERTIFIKAT KELULUSAN          -->
+        <!-- ===================================================================== -->
+        <section id="section-6-reflection" class="hidden game-card rounded-[2rem] p-5 sm:p-8 animate-pop">
+            <!-- Animasi Pintu Terbuka & Ucapan Selamat -->
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-emerald-100 border-4 border-emerald-400 text-5xl mb-3 shadow-lg animate-bounce">
+                    🚪✨
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-emerald-700">Selamat! Kamu Berhasil Lolos!</h2>
+                <p class="text-slate-600 font-bold text-base sm:text-lg mt-1">
+                    Pintu Escape Room telah terbuka lebar! Kamu resmi menjadi <b>Pahlawan Penjaga Air</b>!
+                </p>
+            </div>
+
+            <!-- Kartu Sertifikat Kelulusan -->
+            <div class="bg-gradient-to-br from-amber-50 via-white to-sky-50 border-4 border-amber-400 rounded-3xl p-6 sm:p-8 text-center shadow-xl mb-8 relative overflow-hidden">
+                <div class="absolute top-3 right-3 text-3xl opacity-30">🏅</div>
+                <div class="absolute bottom-3 left-3 text-3xl opacity-30">💧</div>
+
+                <p class="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-amber-700 mb-1">Sertifikat Penghargaan IPAS Kelas 5</p>
+                <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-sky-900 mb-3">PAHLAWAN PENJAGA AIR BUMI</h3>
+                <p class="text-slate-600 font-semibold text-sm">Diberikan dengan bangga kepada:</p>
+                <p id="cert-player-name" class="font-display font-extrabold text-2xl sm:text-4xl text-emerald-600 my-2 underline decoration-amber-400 decoration-4">Nama Murid</p>
+                <p id="cert-player-class" class="text-slate-700 font-bold text-sm mb-4">Kelas 5 SD</p>
+
+                <div class="flex flex-wrap justify-center gap-3 sm:gap-5 my-4">
+                    <div class="bg-white border-2 border-sky-200 rounded-2xl px-4 py-2.5 shadow-sm">
+                        <p class="text-xs font-bold text-slate-500">Jawaban Kuis Benar</p>
+                        <p id="cert-quiz-correct" class="font-display font-extrabold text-xl text-sky-700">10 / 10</p>
+                    </div>
+                    <div class="bg-white border-2 border-amber-200 rounded-2xl px-4 py-2.5 shadow-sm">
+                        <p class="text-xs font-bold text-slate-500">Total Poin Bintang</p>
+                        <p id="cert-total-score" class="font-display font-extrabold text-xl text-amber-600">⭐ 0</p>
+                    </div>
+                    <div class="bg-white border-2 border-emerald-200 rounded-2xl px-4 py-2.5 shadow-sm">
+                        <p class="text-xs font-bold text-slate-500">Predikat Petualang</p>
+                        <p id="cert-badge-rank" class="font-display font-extrabold text-xl text-emerald-600">Master Siklus Air</p>
+                    </div>
+                </div>
+
+                <p id="cert-personal-feedback" class="text-slate-700 font-bold text-sm sm:text-base max-w-xl mx-auto mt-3 bg-sky-100/70 p-3 rounded-2xl">
+                    Umpan balik akhir...
+                </p>
+            </div>
+
+            <!-- Lembar Refleksi Murid Interaktif -->
+            <div class="bg-sky-50 border-3 border-sky-200 rounded-3xl p-5 sm:p-6 mb-6">
+                <h3 class="font-display font-bold text-xl sm:text-2xl text-sky-900 mb-3 flex items-center gap-2">
+                    <span>🪞</span> Refleksi Diri & Janji Menjaga Air
+                </h3>
+
+                <div class="mb-5">
+                    <p class="font-bold text-slate-700 text-sm sm:text-base mb-2">1. Bagaimana perasaanmu setelah belajar siklus air hari ini?</p>
+                    <div class="grid grid-cols-3 gap-2.5" id="reflection-moods">
+                        <button onclick="selectMood(this, 'Senang & Paham Sekali!')" class="mood-btn p-3 rounded-2xl bg-white border-2 border-sky-200 hover:border-sky-500 font-bold text-sm text-center transition">
+                            <span class="text-2xl block mb-1">🤩</span> Sangat Senang
+                        </button>
+                        <button onclick="selectMood(this, 'Seru & Menantang!')" class="mood-btn p-3 rounded-2xl bg-white border-2 border-sky-200 hover:border-sky-500 font-bold text-sm text-center transition">
+                            <span class="text-2xl block mb-1">😊</span> Seru Sekali
+                        </button>
+                        <button onclick="selectMood(this, 'Ingin Belajar Lagi!')" class="mood-btn p-3 rounded-2xl bg-white border-2 border-sky-200 hover:border-sky-500 font-bold text-sm text-center transition">
+                            <span class="text-2xl block mb-1">🤔</span> Ingin Tahu Lagi
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="font-bold text-slate-700 text-sm sm:text-base mb-2">2. Centang aksi nyata menjaga air bersih yang akan kamu lakukan mulai hari ini:</p>
+                    <div class="space-y-2">
+                        <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-sky-200 cursor-pointer hover:bg-emerald-50">
+                            <input type="checkbox" class="w-5 h-5 accent-emerald-600 rounded" onchange="checkPledge()">
+                            <span class="font-bold text-slate-700 text-sm">Menutup keran air dengan rapat setelah mencuci tangan atau menggosok gigi.</span>
+                        </label>
+                        <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-sky-200 cursor-pointer hover:bg-emerald-50">
+                            <input type="checkbox" class="w-5 h-5 accent-emerald-600 rounded" onchange="checkPledge()">
+                            <span class="font-bold text-slate-700 text-sm">Tidak membuang sampah ke sungai, selokan, atau saluran air.</span>
+                        </label>
+                        <label class="flex items-center gap-3 bg-white p-3 rounded-xl border border-sky-200 cursor-pointer hover:bg-emerald-50">
+                            <input type="checkbox" class="w-5 h-5 accent-emerald-600 rounded" onchange="checkPledge()">
+                            <span class="font-bold text-slate-700 text-sm">Ikut merawat tanaman/pohon di sekitar rumah agar air hujan meresap ke tanah (infiltrasi).</span>
+                        </label>
+                    </div>
+                    <p id="pledge-thanks-msg" class="hidden mt-3 text-emerald-700 font-extrabold text-sm bg-emerald-100 px-4 py-2 rounded-xl">
+                        💚 Terima kasih Pahlawan Air! Bumi pasti tersenyum melihat janjimu!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tombol Main Lagi -->
+            <div class="text-center">
+                <button onclick="resetGame()" class="btn-kid px-8 py-4 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-display font-bold text-lg">
+                    🔄 Mainkan Petualangan Lagi
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- JAVASCRIPT LOGIKA GAME EDUKATIF                                           -->
+    <!-- ========================================================================= -->
+    <script>
+        // --- 1. STATE & DATA GAME ---
+        const gameState = {
+            playerName: "Petualang Cilik",
+            playerClass: "Kelas 5",
+            score: 0,
+            soundEnabled: true,
+            exploredTopics: new Set(),
+            roomsCompleted: { 1: false, 2: false, 3: false, 4: false },
+            currentRoom: 1,
+            quizIndex: 0,
+            quizCorrectCount: 0,
+            quizAnswered: false
+        };
+
+        // SVG Maskot Tiko si Tetes Air yang lucu dan ekspresif
+        function getTikoSVG(mood = "happy") {
+            let mouthPath = "M 42 66 Q 50 75 58 66"; // senyum normal
+            let cheekOpacity = "0.75";
+            let eyeType = `<circle cx="38" cy="54" r="4.5" fill="#0f172a"/><circle cx="39.5" cy="52.5" r="1.5" fill="#ffffff"/>
+                           <circle cx="62" cy="54" r="4.5" fill="#0f172a"/><circle cx="63.5" cy="52.5" r="1.5" fill="#ffffff"/>`;
+
+            if (mood === "excited") {
+                mouthPath = "M 40 65 Q 50 79 60 65 Z"; // senyum lebar ceria
+                eyeType = `<path d="M 33 55 Q 38 48 43 55" fill="none" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>
+                           <path d="M 57 55 Q 62 48 67 55" fill="none" stroke="#0f172a" stroke-width="3.2" stroke-linecap="round"/>`;
+            } else if (mood === "encourage") {
+                mouthPath = "M 43 68 Q 50 72 57 68"; // senyum lembut menyemangati
+            }
+
+            return `
+            <svg viewBox="0 0 100 110" class="w-full h-full drop-shadow-md">
+                <defs>
+                    <linearGradient id="tikoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#7dd3fc"/>
+                        <stop offset="55%" stop-color="#0ea5e9"/>
+                        <stop offset="100%" stop-color="#0369a1"/>
+                    </linearGradient>
+                </defs>
+                <!-- Badan Tetes Air -->
+                <path d="M50 8 C50 8 84 48 84 72 C84 91 69 104 50 104 C31 104 16 91 16 72 C16 48 50 8 50 8 Z"
+                      fill="url(#tikoGrad)" stroke="#ffffff" stroke-width="3"/>
+                <!-- Kilau Tetes Air -->
+                <ellipse cx="32" cy="48" rx="4.5" ry="11" transform="rotate(24 32 48)" fill="#ffffff" opacity="0.65"/>
+                <!-- Mata -->
+                <g class="tiko-eye">${eyeType}</g>
+                <!-- Pipi Merona -->
+                <ellipse cx="31" cy="63" rx="5" ry="3" fill="#fb7185" opacity="${cheekOpacity}"/>
+                <ellipse cx="69" cy="63" rx="5" ry="3" fill="#fb7185" opacity="${cheekOpacity}"/>
+                <!-- Mulut -->
+                <path d="${mouthPath}" fill="${mood === 'excited' ? '#f43f5e' : 'none'}" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                <!-- Topi Petualang Kecil -->
+                <ellipse cx="50" cy="21" rx="18" ry="4" fill="#facc15" stroke="#ca8a04" stroke-width="1.5"/>
+                <path d="M39 21 Q50 9 61 21 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5"/>
+            </svg>`;
+        }
+
+        // Efek suara sintetis ringan menggunakan Tone.js
+        function playSFX(type) {
+            if (!gameState.soundEnabled || typeof Tone === "undefined") return;
+            try {
+                if (Tone.context.state !== "running") Tone.start();
+                const synth = new Tone.Synth().toDestination();
+                synth.volume.value = -10;
+                const now = Tone.now();
+                if (type === "click") {
+                    synth.triggerAttackRelease("C5", "32n", now);
+                } else if (type === "success") {
+                    synth.triggerAttackRelease("C5", "16n", now);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.09);
+                    synth.triggerAttackRelease("G5", "8n", now + 0.18);
+                } else if (type === "wrong") {
+                    synth.triggerAttackRelease("E4", "16n", now);
+                    synth.triggerAttackRelease("C4", "8n", now + 0.12);
+                } else if (type === "win") {
+                    synth.triggerAttackRelease("C5", "16n", now);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.1);
+                    synth.triggerAttackRelease("G5", "16n", now + 0.2);
+                    synth.triggerAttackRelease("C6", "4n", now + 0.3);
+                }
+            } catch (e) { /* Abaikan jika audio diblokir browser */ }
+        }
+
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            document.getElementById("btn-sound-toggle").textContent = gameState.soundEnabled ? "🔊" : "🔇";
+        }
+
+        function addScore(points) {
+            gameState.score += points;
+            document.getElementById("hud-score").textContent = gameState.score;
+        }
+
+        function updateTiko(text, moodTag = "Pemandu Setia", moodFace = "happy") {
+            document.getElementById("tiko-speech-text").innerHTML = text;
+            document.getElementById("tiko-mood-tag").textContent = moodTag;
+            document.getElementById("tiko-avatar-slot").innerHTML = getTikoSVG(moodFace);
+        }
+
+        // Inisialisasi Awal
+        window.onload = function () {
+            document.getElementById("intro-tiko-svg").innerHTML = getTikoSVG("excited");
+            document.getElementById("tiko-avatar-slot").innerHTML = getTikoSVG("happy");
+        };
+
+        // --- 2. NAVIGASI ANTAR BAGIAN ---
+        function startAdventure() {
+            const nameInput = document.getElementById("input-player-name").value.trim();
+            const classInput = document.getElementById("input-player-class").value.trim() || "Kelas 5";
+            const errEl = document.getElementById("intro-error-msg");
+
+            if (!nameInput) {
+                errEl.classList.remove("hidden");
+                playSFX("wrong");
+                return;
+            }
+
+            errEl.classList.add("hidden");
+            gameState.playerName = nameInput;
+            gameState.playerClass = classInput;
+
+            document.getElementById("hud-player-name").textContent = `${gameState.playerName} (${gameState.playerClass})`;
+            document.getElementById("game-hud").classList.remove("hidden");
+            document.getElementById("tiko-helper-bar").classList.remove("hidden");
+
+            playSFX("success");
+            goToSection(2);
+        }
+
+        function goToSection(num) {
+            playSFX("click");
+            const sections = [
+                "section-1-intro",
+                "section-2-objectives",
+                "section-3-material",
+                "section-4-escaperoom",
+                "section-5-quiz",
+                "section-6-reflection"
+            ];
+            sections.forEach((id, idx) => {
+                document.getElementById(id).classList.toggle("hidden", idx + 1 !== num);
+            });
+
+            const stageInfo = {
+                2: { label: "Tahap 1: Tujuan Belajar", pct: "15%", msg: `Halo <b>${gameState.playerName}</b>! Yuk baca 5 misi belajar kita hari ini sebelum masuk ke peta siklus air!` },
+                3: { label: "Tahap 2: Peta Materi", pct: "35%", msg: `Klik semua <b>6 tombol materi</b> di peta dan kartu di bawahnya ya, <b>${gameState.playerName}</b>!` },
+                4: { label: "Tahap 3: Escape Room", pct: "60%", msg: `Saatnya beraksi! Selesaikan teka-teki di <b>4 ruangan</b> untuk mengumpulkan 4 Kunci Elemen Air!` },
+                5: { label: "Tahap 4: Evaluasi Akhir", pct: "85%", msg: `Gerbang terakhir! Jawab <b>10 soal pilihan ganda</b> dengan teliti. Aku yakin kamu pasti bisa!` },
+                6: { label: "Selesai: Sertifikat & Refleksi", pct: "100%", msg: `Luar biasa <b>${gameState.playerName}</b>! Kamu telah menyelamatkan bumi dan lulus dari Escape Room!` }
+            };
+
+            if (stageInfo[num]) {
+                document.getElementById("hud-stage-label").textContent = stageInfo[num].label;
+                document.getElementById("hud-progress-pct").textContent = stageInfo[num].pct;
+                document.getElementById("hud-progress-bar").style.width = stageInfo[num].pct;
+                updateTiko(stageInfo[num].msg, num === 6 ? "Bangga Padamu!" : "Pemandu Setia", num === 6 ? "excited" : "happy");
+            }
+
+            if (num === 4) {
+                openRoom(gameState.currentRoom);
+            } else if (num === 5) {
+                initQuiz();
+            } else if (num === 6) {
+                showFinalCertificate();
+            }
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        // --- 3. DATA & LOGIKA MATERI INTI SINGKAT ---
+        const materialTopics = {
+            evaporasi: {
+                icon: "☀️",
+                title: "1. Evaporasi (Penguapan)",
+                desc: "Evaporasi adalah proses menguapnya air dari permukaan bumi (seperti laut, sungai, dan danau) menuju atmosfer karena terkena panas sinar matahari. Air berubah wujud dari cair menjadi uap air (gas).",
+                example: "💡 Contoh di sekitar kita: Baju basah yang dijemur di bawah terik matahari lama-kelamaan menjadi kering karena airnya menguap."
+            },
+            kondensasi: {
+                icon: "☁️",
+                title: "2. Kondensasi (Pengembunan)",
+                desc: "Kondensasi adalah proses berubahnya uap air di udara yang dingin menjadi titik-titik air sangat kecil yang berkumpul membentuk gumpalan awan di langit.",
+                example: "💡 Contoh di sekitar kita: Munculnya titik-titik air di bagian luar gelas yang berisi air es, atau embun di daun pada pagi hari."
+            },
+            presipitasi: {
+                icon: "🌧️",
+                title: "3. Presipitasi (Hujan)",
+                desc: "Presipitasi terjadi ketika titik-titik air di dalam awan sudah semakin banyak, berat, dan tidak mampu lagi ditahan oleh udara, sehingga jatuh ke permukaan bumi sebagai hujan (atau salju di daerah dingin).",
+                example: "💡 Contoh di sekitar kita: Turunnya air hujan membasahi tanah, atap rumah, sungai, dan lautan."
+            },
+            infiltrasi: {
+                icon: "🌱",
+                title: "4. Infiltrasi (Peresapan ke Tanah)",
+                desc: "Infiltrasi adalah proses meresapnya air hujan ke dalam pori-pori tanah melalui akar tumbuhan sehingga menjadi cadangan air tanah yang bersih.",
+                example: "💡 Contoh di sekitar kita: Air hujan meresap ke tanah halaman rumah dan hutan yang banyak pepohonannya sehingga mencegah banjir."
+            },
+            pengertian: {
+                icon: "🔄",
+                title: "Pengertian Siklus Air (Daur Air)",
+                desc: "Siklus air adalah perputaran (sirkulasi) air secara terus-menerus dari bumi ke atmosfer, lalu kembali lagi ke bumi melalui proses penguapan, pembentukan awan, dan hujan.",
+                example: "💡 Penting: Jumlah air di bumi tetap, tetapi kualitas air bersih bisa berkurang jika kita mencemarinya!"
+            },
+            hemat: {
+                icon: "🚰",
+                title: "Perilaku Menjaga Ketersediaan Air Bersih",
+                desc: "Kita wajib menjaga air bersih dengan cara menghemat penggunaan air sehari-hari, tidak membuang sampah/limbah ke sungai, dan menanam pohon agar daerah resapan air tetap terjaga.",
+                example: "💡 Aksi Nyata: Matikan keran saat menggosok gigi, gunakan air secukupnya saat mandi, dan buat lubang biopori."
+            }
+        };
+
+        function exploreTopic(key) {
+            playSFX("click");
+            const data = materialTopics[key];
+            document.getElementById("mat-icon").textContent = data.icon;
+            document.getElementById("mat-title").textContent = data.title;
+            document.getElementById("mat-desc").textContent = data.desc;
+            const exBox = document.getElementById("mat-example");
+            exBox.textContent = data.example;
+            exBox.classList.remove("hidden");
+
+            if (!gameState.exploredTopics.has(key)) {
+                gameState.exploredTopics.add(key);
+                addScore(10);
+                playSFX("success");
+                const btn = document.getElementById(`btn-topic-${key}`);
+                if (btn) {
+                    btn.classList.remove("hotspot-pulse");
+                    btn.classList.add("ring-4", "ring-emerald-400");
+                }
+                const chk = document.getElementById(`check-topic-${key}`);
+                if (chk) chk.textContent = "✅";
+            }
+
+            const count = gameState.exploredTopics.size;
+            document.getElementById("explored-count").textContent = `${count} / 6`;
+            const nextBtn = document.getElementById("btn-enter-escaperoom");
+
+            if (count >= 6) {
+                nextBtn.disabled = false;
+                nextBtn.innerHTML = `<span>🚪</span> Masuk ke Escape Room Sekarang!`;
+                updateTiko("Keren! Semua bekal ilmu sudah kamu kuasai. Ayo masuk ke Escape Room!", "Siap Berpetualang!", "excited");
+            } else {
+                nextBtn.innerHTML = `<span>🔐</span> Pelajari Semua Kartu Dulu (${count}/6)`;
+            }
+        }
+
+        // --- 4. AKTIVITAS INTERAKTIF: ESCAPE ROOM 4 RUANGAN ---
+        let room1SelectedTerm = null;
+        let room1Matched = 0;
+        let room2UserSequence = [];
+        let room3Step = 0;
+        let room4Cleaned = 0;
+
+        function openRoom(roomNum) {
+            gameState.currentRoom = roomNum;
+            const ws = document.getElementById("room-workspace");
+
+            // Highlight kartu ruangan aktif
+            [1, 2, 3, 4].forEach(r => {
+                const card = document.getElementById(`room-card-${r}`);
+                card.classList.remove("ring-4", "ring-sky-500");
+                if (r === roomNum) card.classList.add("ring-4", "ring-sky-500");
+            });
+
+            if (roomNum === 1) {
+                renderRoom1(ws);
+            } else if (roomNum === 2) {
+                renderRoom2(ws);
+            } else if (roomNum === 3) {
+                renderRoom3(ws);
+            } else if (roomNum === 4) {
+                renderRoom4(ws);
+            }
+        }
+
+        // RUANGAN 1: Mencocokkan Istilah Proses Siklus Air
+        function renderRoom1(ws) {
+            room1SelectedTerm = null;
+            room1Matched = 0;
+            updateTiko("Di <b>Ruangan 1</b>, klik satu kotak <b>Istilah</b> di kiri, lalu klik <b>Pengertian</b> yang cocok di kanan!", "Ruangan 1: Labu Uap", "happy");
+
+            const terms = [
+                { id: "evap", label: "☀️ Evaporasi" },
+                { id: "kond", label: "☁️ Kondensasi" },
+                { id: "pres", label: "🌧️ Presipitasi" },
+                { id: "infi", label: "🌱 Infiltrasi" }
+            ];
+
+            const defs = [
+                { id: "kond", text: "Uap air mendingin di langit dan berubah menjadi gumpalan awan." },
+                { id: "infi", text: "Air hujan meresap masuk ke dalam tanah melalui pori-pori & akar pohon." },
+                { id: "evap", text: "Air laut dan sungai menguap naik karena terkena panas sinar matahari." },
+                { id: "pres", text: "Titik air di awan menjadi berat lalu jatuh ke bumi sebagai hujan." }
+            ];
+
+            ws.innerHTML = `
+                <div class="mb-4">
+                    <h3 class="font-display font-bold text-xl text-sky-900">🧪 Tantangan Ruangan 1: Pasangkan Istilah Siklus Air</h3>
+                    <p class="text-sm font-semibold text-slate-600">Klik tombol istilah di sebelah kiri, kemudian klik artinya yang tepat di sebelah kanan!</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2.5" id="r1-terms">
+                        ${terms.map(t => `
+                            <button onclick="selectR1Term('${t.id}', this)" data-id="${t.id}"
+                                class="r1-term-btn w-full p-3.5 rounded-2xl bg-white border-2 border-amber-300 hover:bg-amber-50 font-display font-bold text-left text-slate-800 text-base transition shadow-sm">
+                                ${t.label}
+                            </button>
+                        `).join("")}
+                    </div>
+                    <div class="space-y-2.5" id="r1-defs">
+                        ${defs.map(d => `
+                            <button onclick="selectR1Def('${d.id}', this)" data-id="${d.id}"
+                                class="r1-def-btn w-full p-3.5 rounded-2xl bg-white border-2 border-sky-300 hover:bg-sky-100 font-bold text-left text-slate-700 text-sm transition shadow-sm">
+                                ${d.text}
+                            </button>
+                        `).join("")}
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectR1Term(id, btn) {
+            if (btn.disabled) return;
+            playSFX("click");
+            document.querySelectorAll(".r1-term-btn").forEach(b => b.classList.remove("bg-amber-300", "border-amber-600"));
+            btn.classList.add("bg-amber-300", "border-amber-600");
+            room1SelectedTerm = id;
+        }
+
+        function selectR1Def(id, btn) {
+            if (btn.disabled) return;
+            if (!room1SelectedTerm) {
+                updateTiko("Klik dulu kotak <b>Istilah</b> yang berwarna kuning di sebelah kiri ya!", "Petunjuk Tiko", "encourage");
+                return;
+            }
+
+            const termBtn = document.querySelector(`.r1-term-btn[data-id="${room1SelectedTerm}"]`);
+            if (room1SelectedTerm === id) {
+                playSFX("success");
+                termBtn.disabled = true;
+                btn.disabled = true;
+                termBtn.className = "w-full p-3.5 rounded-2xl bg-emerald-500 text-white font-display font-bold text-left text-base shadow-sm";
+                btn.className = "w-full p-3.5 rounded-2xl bg-emerald-100 border-2 border-emerald-500 text-emerald-900 font-bold text-left text-sm";
+                room1SelectedTerm = null;
+                room1Matched++;
+                addScore(15);
+
+                if (room1Matched === 4) {
+                    completeRoom(1, "Kunci Uap");
+                }
+            } else {
+                playSFX("wrong");
+                btn.classList.add("animate-shake", "bg-rose-100", "border-rose-400");
+                updateTiko("Belum cocok nih! Coba ingat kembali arti kata tersebut dan pilih pasangan lain.", "Coba Lagi Yuk!", "encourage");
+                setTimeout(() => btn.classList.remove("animate-shake", "bg-rose-100", "border-rose-400"), 500);
+            }
+        }
+
+        // RUANGAN 2: Menyusun Urutan Siklus Air
+        function renderRoom2(ws) {
+            room2UserSequence = [];
+            updateTiko("Di <b>Ruangan 2</b>, gembok pintu membutuhkan kode <b>urutan siklus air dari 1 sampai 4</b>!", "Ruangan 2: Menara Urutan", "happy");
+
+            const shuffledSteps = [
+                { step: 3, name: "Presipitasi (Hujan Turun)", icon: "🌧️" },
+                { step: 1, name: "Evaporasi (Air Menguap)", icon: "☀️" },
+                { step: 4, name: "Infiltrasi (Meresap ke Tanah)", icon: "🌱" },
+                { step: 2, name: "Kondensasi (Awan Terbentuk)", icon: "☁️" }
+            ];
+
+            ws.innerHTML = `
+                <div class="mb-4">
+                    <h3 class="font-display font-bold text-xl text-sky-900">🔢 Tantangan Ruangan 2: Susun Urutan Siklus Air</h3>
+                    <p class="text-sm font-semibold text-slate-600">Klik tahapan siklus air di bawah ini secara berurutan dari <b>Langkah ke-1 hingga Langkah ke-4</b>!</p>
+                </div>
+
+                <!-- Kotak Slot Urutan -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5" id="r2-slots">
+                    ${[1, 2, 3, 4].map(n => `
+                        <div id="r2-slot-${n}" class="p-3 rounded-2xl bg-white border-2 border-dashed border-sky-400 text-center min-h-[76px] flex flex-col justify-center">
+                            <span class="text-xs font-extrabold text-sky-600">Urutan #${n}</span>
+                            <span class="text-xs font-bold text-slate-400">Menunggu...</span>
+                        </div>
+                    `).join("")}
+                </div>
+
+                <!-- Tombol Pilihan Tahapan -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="r2-choices">
+                    ${shuffledSteps.map(s => `
+                        <button onclick="pickR2Step(${s.step}, '${s.name}', '${s.icon}', this)"
+                            class="btn-kid p-4 rounded-2xl bg-white border-2 border-indigo-300 hover:bg-indigo-50 font-display font-bold text-slate-800 text-base flex items-center gap-3">
+                            <span class="text-2xl">${s.icon}</span>
+                            <span>${s.name}</span>
+                        </button>
+                    `).join("")}
+                </div>
+            `;
+        }
+
+        function pickR2Step(stepNum, name, icon, btn) {
+            const expectedStep = room2UserSequence.length + 1;
+            if (stepNum === expectedStep) {
+                playSFX("success");
+                room2UserSequence.push(stepNum);
+                btn.disabled = true;
+                btn.classList.add("opacity-40");
+
+                const slot = document.getElementById(`r2-slot-${expectedStep}`);
+                slot.className = "p-3 rounded-2xl bg-emerald-100 border-2 border-emerald-500 text-center min-h-[76px] flex flex-col justify-center animate-pop";
+                slot.innerHTML = `<span class="text-xl">${icon}</span><span class="text-xs font-extrabold text-emerald-900">${expectedStep}. ${name.split(" ")[0]}</span>`;
+                addScore(15);
+
+                if (room2UserSequence.length === 4) {
+                    completeRoom(2, "Kunci Awan");
+                }
+            } else {
+                playSFX("wrong");
+                btn.classList.add("animate-shake", "bg-rose-100", "border-rose-400");
+                updateTiko(`Ups! Langkah ke-${expectedStep} bukan itu. Ingat urutannya: <b>Menguap ➔ Jadi Awan ➔ Hujan ➔ Meresap!</b>`, "Ayo Urutkan Lagi!", "encourage");
+                setTimeout(() => btn.classList.remove("animate-shake", "bg-rose-100", "border-rose-400"), 500);
+            }
+        }
+
+        // RUANGAN 3: Detektif Fenomena Kehidupan Sehari-hari
+        const r3Cases = [
+            {
+                clue: "👕 Ibu menjemur pakaian basah di halaman rumah pada pagi hari. Siang harinya pakaian tersebut sudah kering.",
+                question: "Peristiwa siklus air apakah yang membuat pakaian menjadi kering?",
+                options: ["Evaporasi (Penguapan)", "Presipitasi (Hujan)", "Infiltrasi (Peresapan)"],
+                answer: 0
+            },
+            {
+                clue: "🥤 Kakak menuangkan air es ke dalam gelas kaca. Beberapa menit kemudian, bagian luar gelas terasa basah dan muncul titik-titik air.",
+                question: "Munculnya titik air di luar gelas es mirip dengan proses apa di langit?",
+                options: ["Infiltrasi", "Kondensasi (Pengembunan)", "Evaporasi"],
+                answer: 1
+            },
+            {
+                clue: "🌳 Saat hujan deras turun di pegunungan yang hutannya lebat, air tidak langsung meluap menjadi banjir karena diserap akar pohon.",
+                question: "Proses masuknya air hujan ke dalam tanah tersebut dinamakan...",
+                options: ["Kondensasi", "Evaporasi", "Infiltrasi (Peresapan)"],
+                answer: 2
+            }
+        ];
+
+        function renderRoom3(ws) {
+            room3Step = 0;
+            updateTiko("Jadilah <b>Detektif Air</b> di Ruangan 3! Pecahkan 3 kasus peristiwa sehari-hari!", "Ruangan 3: Taman Detektif", "happy");
+            showR3Case(ws);
+        }
+
+        function showR3Case(ws) {
+            const item = r3Cases[room3Step];
+            ws.innerHTML = `
+                <div class="mb-4 flex items-center justify-between">
+                    <h3 class="font-display font-bold text-xl text-sky-900">🔎 Tantangan Ruangan 3: Kasus Detektif #${room3Step + 1} dari 3</h3>
+                    <span class="bg-sky-200 text-sky-900 font-bold text-xs px-3 py-1 rounded-full">Kasus ${room3Step + 1}/3</span>
+                </div>
+                <div class="bg-white border-2 border-amber-300 rounded-2xl p-4 mb-4 shadow-sm">
+                    <p class="font-bold text-slate-800 text-base mb-2">${item.clue}</p>
+                    <p class="font-extrabold text-sky-700 text-sm sm:text-base">❓ ${item.question}</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    ${item.options.map((opt, idx) => `
+                        <button onclick="answerR3(${idx}, this)"
+                            class="btn-kid p-3.5 rounded-2xl bg-white border-2 border-sky-300 hover:bg-sky-100 font-display font-bold text-slate-800 text-sm sm:text-base">
+                            ${opt}
+                        </button>
+                    `).join("")}
+                </div>
+            `;
+        }
+
+        function answerR3(idx, btn) {
+            const item = r3Cases[room3Step];
+            if (idx === item.answer) {
+                playSFX("success");
+                addScore(20);
+                room3Step++;
+                if (room3Step < r3Cases.length) {
+                    updateTiko("Tepat sekali Detektif! Ayo lanjut pecahkan kasus berikutnya!", "Hebat!", "excited");
+                    showR3Case(document.getElementById("room-workspace"));
+                } else {
+                    completeRoom(3, "Kunci Hujan");
+                }
+            } else {
+                playSFX("wrong");
+                btn.classList.add("animate-shake", "bg-rose-100", "border-rose-400");
+                updateTiko("Belum tepat Detektif! Baca lagi petunjuk kejadiannya dengan teliti ya!", "Coba Cek Lagi!", "encourage");
+                setTimeout(() => btn.classList.remove("animate-shake", "bg-rose-100", "border-rose-400"), 500);
+            }
+        }
+
+        // RUANGAN 4: Memilah Perilaku Menjaga Ketersediaan Air Bersih
+        function renderRoom4(ws) {
+            room4Cleaned = 0;
+            updateTiko("Ini ruangan terakhir! Pilih <b>4 perilaku baik menjaga air bersih</b> untuk mendapatkan Kunci Utama!", "Ruangan 4: Gerbang Penjaga", "happy");
+
+            const actions = [
+                { text: "🚰 Mematikan keran air setelah selesai mencuci tangan", good: true },
+                { text: "🗑️ Membuang bungkus plastik jajanan ke sungai", good: false },
+                { text: "🌳 Menanam pohon di halaman dan lahan kosong", good: true },
+                { text: "🚿 Membiarkan air keran mengalir terus saat menggosok gigi", good: false },
+                { text: "🪣 Menampung air hujan untuk menyiram tanaman", good: true },
+                { text: "🛢️ Membuang limbah sabun atau oli langsung ke selokan tanah", good: false },
+                { text: "🕳️ Membuat lubang resapan biopori di sekitar rumah", good: true }
+            ];
+
+            ws.innerHTML = `
+                <div class="mb-4">
+                    <h3 class="font-display font-bold text-xl text-sky-900">🛡️ Tantangan Ruangan 4: Pilih 4 Perilaku Penjaga Air Bersih</h3>
+                    <p class="text-sm font-semibold text-slate-600">Klik hanya pada tindakan yang <b>menghemat dan menjaga kebersihan air</b> (4 pilihan benar)!</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    ${actions.map(act => `
+                        <button onclick="selectR4Action(${act.good}, this)"
+                            class="btn-kid p-3.5 rounded-2xl bg-white border-2 border-emerald-300 hover:bg-emerald-50 font-bold text-left text-slate-800 text-sm transition">
+                            ${act.text}
+                        </button>
+                    `).join("")}
+                </div>
+            `;
+        }
+
+        function selectR4Action(isGood, btn) {
+            if (btn.disabled) return;
+            if (isGood) {
+                playSFX("success");
+                btn.disabled = true;
+                btn.className = "p-3.5 rounded-2xl bg-emerald-500 text-white font-bold text-left text-sm shadow-sm";
+                btn.innerHTML = "✅ " + btn.innerHTML;
+                room4Cleaned++;
+                addScore(15);
+
+                if (room4Cleaned === 4) {
+                    completeRoom(4, "Kunci Penjaga");
+                }
+            } else {
+                playSFX("wrong");
+                btn.classList.add("animate-shake", "bg-rose-100", "border-rose-400");
+                updateTiko("Waduh! Perilaku itu justru memboroskan atau mencemari air bersih. Pilih tindakan yang baik ya!", "Hati-hati!", "encourage");
+                setTimeout(() => btn.classList.remove("animate-shake", "bg-rose-100", "border-rose-400"), 550);
+            }
+        }
+
+        // Menyelesaikan Satu Ruangan & Membuka Ruangan Berikutnya
+        function completeRoom(roomNum, keyName) {
+            playSFX("win");
+            gameState.roomsCompleted[roomNum] = true;
+
+            // Update tampilan kartu ruangan selesai
+            const card = document.getElementById(`room-card-${roomNum}`);
+            card.className = "p-4 rounded-3xl border-3 border-emerald-500 bg-emerald-100 text-center transition shadow-sm";
+            document.getElementById(`room-status-${roomNum}`).textContent = "✅";
+            document.getElementById(`room-tag-${roomNum}`).textContent = `${keyName} Diraih!`;
+            document.getElementById(`room-tag-${roomNum}`).className = "inline-block mt-2 text-xs font-bold bg-emerald-500 text-white px-2.5 py-0.5 rounded-full";
+
+            // Nyalakan ikon kunci di HUD
+            const badge = document.getElementById(`key-badge-${roomNum}`);
+            badge.classList.remove("opacity-30");
+            badge.classList.add("scale-125");
+
+            const ws = document.getElementById("room-workspace");
+            if (roomNum < 4) {
+                const nextRoom = roomNum + 1;
+                const nextCard = document.getElementById(`room-card-${nextRoom}`);
+                nextCard.disabled = false;
+                nextCard.className = "p-4 rounded-3xl border-3 border-amber-400 bg-amber-50 hover:bg-amber-100 text-center transition shadow-sm cursor-pointer";
+                document.getElementById(`room-status-${nextRoom}`).textContent = "🔓";
+                document.getElementById(`room-tag-${nextRoom}`).textContent = "Terbuka!";
+                document.getElementById(`room-tag-${nextRoom}`).className = "inline-block mt-2 text-xs font-bold bg-amber-300 text-amber-950 px-2.5 py-0.5 rounded-full";
+
+                updateTiko(`Hore! Kamu mendapatkan <b>${keyName}</b>! Ruangan ${nextRoom} sekarang sudah terbuka!`, "Kunci Didapat!", "excited");
+                ws.innerHTML = `
+                    <div class="text-center py-8 animate-pop">
+                        <div class="text-5xl mb-3">🔑✨</div>
+                        <h3 class="font-display font-bold text-2xl text-emerald-700 mb-2">Ruangan ${roomNum} Berhasil Ditaklukkan!</h3>
+                        <p class="text-slate-700 font-bold mb-5">Kamu berhasil mendapatkan <b>${keyName}</b> (+Poin Bintang)!</p>
+                        <button onclick="openRoom(${nextRoom})" class="btn-kid px-7 py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 text-white font-display font-bold text-lg">
+                            Lanjut ke Ruangan ${nextRoom} ➡️
+                        </button>
+                    </div>
+                `;
+            } else {
+                launchConfetti();
+                updateTiko("LUAR BIASA! Semua 4 Kunci Elemen Air sudah lengkap! Gerbang Kebebasan telah terbuka!", "Semua Kunci Lengkap!", "excited");
+                ws.innerHTML = `
+                    <div class="text-center py-6 animate-pop">
+                        <div class="text-5xl mb-2">🏆🔑🔑🔑🔑</div>
+                        <h3 class="font-display font-bold text-2xl text-emerald-700">Keempat Ruangan Selesai!</h3>
+                        <p class="text-slate-700 font-bold">Klik tombol hijau di bawah untuk membuka Gerbang Evaluasi Akhir!</p>
+                    </div>
+                `;
+                document.getElementById("escape-gate-banner").classList.remove("hidden");
+            }
+        }
+
+        // --- 5. KUIS EVALUASI AKHIR (10 SOAL PILIHAN GANDA) ---
+        const quizQuestions = [
+            {
+                topic: "Tujuan 1: Pengertian Siklus Air",
+                question: "Apa yang dimaksud dengan siklus air?",
+                options: [
+                    "Perputaran air secara terus-menerus dari bumi ke atmosfer lalu kembali lagi ke bumi",
+                    "Proses pembuatan air minum di pabrik menggunakan mesin penyaring",
+                    "Perpindahan air laut menuju sungai ketika terjadi gelombang pasang",
+                    "Penggunaan air bersih oleh manusia untuk mandi dan mencuci setiap hari"
+                ],
+                correct: 0,
+                appreciation: "Hebat sekali! Kamu benar-benar paham bahwa siklus air adalah perputaran air yang terjadi terus-menerus di alam.",
+                motivation: "Jangan berkecil hati ya! Ayo ingat lagi: siklus air itu seperti lingkaran perjalanan air dari bumi ke langit lalu turun lagi ke bumi.",
+                explanation: "Siklus air (daur air) adalah sirkulasi atau perputaran air tanpa henti dari permukaan bumi ke udara (atmosfer) dan kembali lagi ke bumi."
+            },
+            {
+                topic: "Tujuan 2: Proses Evaporasi",
+                question: "Air laut, sungai, dan danau menguap naik ke udara karena terkena panas sinar matahari. Proses ini disebut...",
+                options: [
+                    "Kondensasi",
+                    "Presipitasi",
+                    "Evaporasi",
+                    "Infiltrasi"
+                ],
+                correct: 2,
+                appreciation: "Luar biasa cerdas! Jawabanmu tepat sasaran, panas matahari memicu proses evaporasi!",
+                motivation: "Hampir tepat! Tetap semangat ya! Kata kunci soal ini adalah 'menguap karena panas matahari'.",
+                explanation: "Evaporasi adalah proses penguapan air dari permukaan bumi menuju atmosfer akibat pemanasan sinar matahari."
+            },
+            {
+                topic: "Tujuan 2: Proses Kondensasi",
+                question: "Di langit yang bersuhu dingin, uap air berubah menjadi titik-titik air kecil yang berkumpul membentuk awan. Proses ini dinamakan...",
+                options: [
+                    "Infiltrasi",
+                    "Evaporasi",
+                    "Presipitasi",
+                    "Kondensasi"
+                ],
+                correct: 3,
+                appreciation: "Keren banget! Kamu berhasil mengidentifikasi proses pembentukan awan dengan sangat tepat!",
+                motivation: "Tidak apa-apa salah, belajar memang butuh proses! Ingat ya, uap air mendingin menjadi awan disebut kondensasi.",
+                explanation: "Kondensasi (pengembunan) adalah perubahan wujud uap air menjadi partikel-partikel air kecil yang membentuk awan."
+            },
+            {
+                topic: "Tujuan 2: Proses Presipitasi",
+                question: "Ketika titik-titik air di dalam awan sudah terlalu banyak dan berat, air akan jatuh ke permukaan bumi sebagai hujan. Proses ini disebut...",
+                options: [
+                    "Presipitasi",
+                    "Evaporasi",
+                    "Kondensasi",
+                    "Transpirasi"
+                ],
+                correct: 0,
+                appreciation: "Mantap! Kamu hebat sekali mengenali proses turunnya hujan sebagai presipitasi!",
+                motivation: "Tetap semangat petualang! Hujan yang turun dari awan ke bumi dikenal dengan istilah presipitasi.",
+                explanation: "Presipitasi adalah proses jatuhnya titik-titik air dari awan ke permukaan bumi dalam bentuk hujan maupun salju."
+            },
+            {
+                topic: "Tujuan 2: Proses Infiltrasi",
+                question: "Air hujan yang jatuh ke tanah akan meresap masuk ke dalam pori-pori tanah melalui bantuan akar tumbuhan. Proses ini disebut...",
+                options: [
+                    "Evaporasi",
+                    "Infiltrasi",
+                    "Kondensasi",
+                    "Presipitasi"
+                ],
+                correct: 1,
+                appreciation: "Sempurna! Kamu tahu persis bagaimana tanah dan pohon menyimpan cadangan air lewat infiltrasi!",
+                motivation: "Jangan menyerah! Coba bayangkan air hujan masuk ke dalam tanah—proses meresap itu disebut infiltrasi.",
+                explanation: "Infiltrasi adalah proses peresapan air hujan ke dalam lapisan tanah sehingga menjadi cadangan air tanah."
+            },
+            {
+                topic: "Tujuan 3: Urutan Siklus Air",
+                question: "Manakah urutan tahapan siklus air yang paling tepat dari awal hingga air kembali tersimpan di tanah?",
+                options: [
+                    "Kondensasi ➔ Evaporasi ➔ Infiltrasi ➔ Presipitasi",
+                    "Presipitasi ➔ Kondensasi ➔ Evaporasi ➔ Infiltrasi",
+                    "Evaporasi ➔ Kondensasi ➔ Presipitasi ➔ Infiltrasi",
+                    "Infiltrasi ➔ Presipitasi ➔ Kondensasi ➔ Evaporasi"
+                ],
+                correct: 2,
+                appreciation: "Brilian! Urutan siklus air yang kamu pilih 100% akurat dari awal sampai akhir!",
+                motivation: "Ayo coba urutkan pelan-pelan: pertama air menguap (evaporasi), jadi awan (kondensasi), turun hujan (presipitasi), lalu meresap (infiltrasi).",
+                explanation: "Urutan siklus air dimulai dari Evaporasi (penguapan) ➔ Kondensasi (awan) ➔ Presipitasi (hujan) ➔ Infiltrasi (meresap ke tanah)."
+            },
+            {
+                topic: "Tujuan 4: Siklus Air dalam Kehidupan Sehari-hari",
+                question: "Saat pagi hari yang sejuk, kita sering melihat butiran air menempel di permukaan daun tanaman meskipun semalam tidak turun hujan. Peristiwa ini merupakan contoh dari proses...",
+                options: [
+                    "Kondensasi",
+                    "Infiltrasi",
+                    "Presipitasi",
+                    "Evaporasi"
+                ],
+                correct: 0,
+                appreciation: "Analisis yang hebat! Kamu pintar menghubungkan embun pagi dengan peristiwa kondensasi!",
+                motivation: "Bagus sudah berani mencoba! Embun pada daun terjadi karena uap air di udara mendingin di pagi hari (kondensasi).",
+                explanation: "Embun pagi terbentuk ketika uap air di udara bersentuhan dengan permukaan daun yang dingin sehingga mengembun (kondensasi)."
+            },
+            {
+                topic: "Tujuan 4: Siklus Air dalam Kehidupan Sehari-hari",
+                question: "Mengapa pakaian basah yang dijemur di bawah terik matahari lebih cepat kering dibandingkan di tempat yang teduh?",
+                options: [
+                    "Karena di tempat panas terjadi proses infiltrasi lebih cepat",
+                    "Karena panas matahari mempercepat proses evaporasi air pada pakaian",
+                    "Karena angin di tempat panas mengubah air menjadi awan mendung",
+                    "Karena pakaian menyerap sinar matahari sehingga air membeku"
+                ],
+                correct: 1,
+                appreciation: "Tepat sekali! Kamu mampu menjelaskan kejadian sehari-hari dengan konsep IPA yang benar!",
+                motivation: "Tetap semangat belajar! Panas matahari membuat air pada baju basah menguap (evaporasi) lebih cepat.",
+                explanation: "Semakin tinggi suhu panas matahari, semakin cepat pula laju evaporasi (penguapan) air dari pakaian basah ke udara."
+            },
+            {
+                topic: "Tujuan 5: Menjaga Ketersediaan Air Bersih",
+                question: "Penebangan hutan secara liar dan menutup seluruh halaman rumah dengan beton dapat mengganggu siklus air, yaitu menghambat proses...",
+                options: [
+                    "Evaporasi sehingga matahari tidak bersinar",
+                    "Kondensasi sehingga awan menjadi berwarna hijau",
+                    "Infiltrasi sehingga air hujan sulit meresap dan memicu banjir",
+                    "Presipitasi sehingga air hujan berubah menjadi batu"
+                ],
+                correct: 2,
+                appreciation: "Luar biasa! Kamu peduli lingkungan dan paham dampak betonisasi serta hutan gundul terhadap air tanah!",
+                motivation: "Ayo semangat! Tanpa pohon dan tanah terbuka, air hujan tidak bisa meresap ke dalam tanah (infiltrasi).",
+                explanation: "Akar pohon dan tanah terbuka sangat penting untuk proses infiltrasi. Jika tertutup beton, air hujan mengalir di permukaan dan menyebabkan banjir."
+            },
+            {
+                topic: "Tujuan 5: Perilaku Hemat & Menjaga Air Bersih",
+                question: "Manakah perilaku berikut yang menunjukkan sikap bijak menjaga ketersediaan air bersih di rumah?",
+                options: [
+                    "Membiarkan keran kamar mandi terbuka penuh saat menyabuni badan",
+                    "Mencuci sepeda motor setiap hari menggunakan air bersih berlebihan",
+                    "Membuang sisa minyak goreng ke saluran air wastafel dapur",
+                    "Menutup keran air dengan rapat setelah digunakan dan menampung air hujan untuk menyiram tanaman"
+                ],
+                correct: 3,
+                appreciation: "Sempurna! Kamu memang layak menjadi Pahlawan Penjaga Air Bumi!",
+                motivation: "Jangan putus asa! Ingat, menjaga air bersih dilakukan dengan menghemat pemakaian keran dan memanfaatkan kembali air secara bijak.",
+                explanation: "Menutup keran rapat setelah dipakai dan memanfaatkan air hujan untuk menyiram tanaman adalah langkah nyata menghemat air bersih."
+            }
+        ];
+
+        function initQuiz() {
+            gameState.quizIndex = 0;
+            gameState.quizCorrectCount = 0;
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            gameState.quizAnswered = false;
+            const q = quizQuestions[gameState.quizIndex];
+
+            document.getElementById("quiz-q-number").textContent = gameState.quizIndex + 1;
+            document.getElementById("quiz-topic-badge").textContent = q.topic;
+            document.getElementById("quiz-question-text").textContent = q.question;
+            document.getElementById("quiz-feedback-box").classList.add("hidden");
+            document.getElementById("btn-quiz-next").classList.add("hidden");
+
+            // Render 10 titik indikator soal
+            const dotsEl = document.getElementById("quiz-dots-indicator");
+            dotsEl.innerHTML = quizQuestions.map((_, i) => {
+                let cls = "w-3 h-3 rounded-full bg-slate-300";
+                if (i < gameState.quizIndex) cls = "w-3 h-3 rounded-full bg-emerald-400";
+                if (i === gameState.quizIndex) cls = "w-4 h-4 rounded-full bg-sky-500 ring-2 ring-sky-200";
+                return `<span class="${cls}"></span>`;
+            }).join("");
+
+            const letters = ["A", "B", "C", "D"];
+            const optContainer = document.getElementById("quiz-options-container");
+            optContainer.innerHTML = q.options.map((opt, idx) => `
+                <button onclick="submitQuizAnswer(${idx}, this)"
+                    class="quiz-opt-btn w-full p-4 rounded-2xl bg-white hover:bg-sky-50 border-3 border-sky-200 hover:border-sky-400 text-left flex items-center gap-3.5 transition shadow-sm">
+                    <span class="w-9 h-9 rounded-xl bg-sky-100 text-sky-800 font-display font-bold text-lg flex items-center justify-center flex-shrink-0">
+                        ${letters[idx]}
+                    </span>
+                    <span class="font-bold text-slate-800 text-sm sm:text-base">${opt}</span>
+                </button>
+            `).join("");
+        }
+
+        function submitQuizAnswer(selectedIdx, btn) {
+            if (gameState.quizAnswered) return;
+            gameState.quizAnswered = true;
+
+            const q = quizQuestions[gameState.quizIndex];
+            const isCorrect = selectedIdx === q.correct;
+            const allBtns = document.querySelectorAll(".quiz-opt-btn");
+
+            allBtns.forEach((b, idx) => {
+                b.disabled = true;
+                if (idx === q.correct) {
+                    b.className = "w-full p-4 rounded-2xl bg-emerald-100 border-3 border-emerald-500 text-left flex items-center gap-3.5 shadow-sm";
+                    b.querySelector("span").className = "w-9 h-9 rounded-xl bg-emerald-500 text-white font-display font-bold text-lg flex items-center justify-center flex-shrink-0";
+                }
+            });
+
+            const fbBox = document.getElementById("quiz-feedback-box");
+            const fbIcon = document.getElementById("quiz-feedback-icon");
+            const fbTitle = document.getElementById("quiz-feedback-title");
+            const fbMsg = document.getElementById("quiz-feedback-msg");
+            const fbExplain = document.getElementById("quiz-feedback-explain");
+
+            fbBox.classList.remove("hidden", "bg-emerald-50", "border-emerald-400", "bg-amber-50", "border-amber-400");
+
+            if (isCorrect) {
+                playSFX("success");
+                gameState.quizCorrectCount++;
+                addScore(20);
+
+                fbBox.classList.add("bg-emerald-50", "border-emerald-400");
+                fbIcon.textContent = "🌟";
+                fbTitle.textContent = "Apresiasi untukmu! Jawaban Benar! (+20 Poin)";
+                fbTitle.className = "font-display font-bold text-lg sm:text-xl mb-1 text-emerald-800";
+                fbMsg.textContent = q.appreciation;
+                fbMsg.className = "font-bold text-sm sm:text-base mb-2 text-emerald-700";
+
+                updateTiko(`Yeay! Jawabanmu benar, <b>${gameState.playerName}</b>! Kamu memang murid kelas 5 yang hebat!`, "Apresiasi Tiko!", "excited");
+            } else {
+                playSFX("wrong");
+                btn.className = "w-full p-4 rounded-2xl bg-rose-100 border-3 border-rose-400 text-left flex items-center gap-3.5 shadow-sm animate-shake";
+                btn.querySelector("span").className = "w-9 h-9 rounded-xl bg-rose-500 text-white font-display font-bold text-lg flex items-center justify-center flex-shrink-0";
+
+                fbBox.classList.add("bg-amber-50", "border-amber-400");
+                fbIcon.textContent = "💪";
+                fbTitle.textContent = "Tetap Semangat! Yuk Belajar dari Soal Ini!";
+                fbTitle.className = "font-display font-bold text-lg sm:text-xl mb-1 text-amber-900";
+                fbMsg.textContent = q.motivation;
+                fbMsg.className = "font-bold text-sm sm:text-base mb-2 text-amber-800";
+
+                updateTiko("Tidak apa-apa salah, setiap kesalahan membuat kita semakin pintar! Baca penjelasannya ya!", "Semangat Terus!", "encourage");
+            }
+
+            fbExplain.innerHTML = `<b>📖 Penjelasan:</b> ${q.explanation}`;
+
+            const nextBtn = document.getElementById("btn-quiz-next");
+            nextBtn.classList.remove("hidden");
+            nextBtn.textContent = gameState.quizIndex === quizQuestions.length - 1
+                ? "🏆 Lihat Hasil & Buka Pintu Keluar!"
+                : "Soal Berikutnya ➡️";
+        }
+
+        function nextQuizQuestion() {
+            playSFX("click");
+            gameState.quizIndex++;
+            if (gameState.quizIndex < quizQuestions.length) {
+                renderQuizQuestion();
+            } else {
+                goToSection(6);
+            }
+        }
+
+        // --- 6. SERTIFIKAT KELULUSAN & REFLEKSI ---
+        function showFinalCertificate() {
+            playSFX("win");
+            launchConfetti();
+
+            document.getElementById("cert-player-name").textContent = gameState.playerName;
+            document.getElementById("cert-player-class").textContent = gameState.playerClass;
+            document.getElementById("cert-quiz-correct").textContent = `${gameState.quizCorrectCount} / 10`;
+            document.getElementById("cert-total-score").textContent = `⭐ ${gameState.score}`;
+
+            let rank = "Penjaga Air Pemula";
+            let feedback = `Bagus sekali ${gameState.playerName}! Kamu sudah menyelesaikan seluruh petualangan siklus air. Teruslah berlatih dan jaga kebersihan air di sekitarmu ya!`;
+
+            if (gameState.quizCorrectCount >= 9) {
+                rank = "Master Siklus Air 🌟";
+                feedback = `Luar biasa sempurna, ${gameState.playerName}! Pemahamanmu tentang pengertian siklus air, evaporasi, kondensasi, presipitasi, infiltrasi, hingga cara menjaga air bersih sangat mengagumkan!`;
+            } else if (gameState.quizCorrectCount >= 7) {
+                rank = "Ksatria Penjaga Air 💧";
+                feedback = `Hebat sekali ${gameState.playerName}! Kamu sudah sangat menguasai perjalanan siklus air dan perannya bagi kehidupan sehari-hari. Pertahankan semangat belajarmu!`;
+            }
+
+            document.getElementById("cert-badge-rank").textContent = rank;
+            document.getElementById("cert-personal-feedback").textContent = feedback;
+        }
+
+        function selectMood(btn, moodLabel) {
+            playSFX("click");
+            document.querySelectorAll(".mood-btn").forEach(b => {
+                b.classList.remove("bg-sky-200", "border-sky-600", "scale-105");
+            });
+            btn.classList.add("bg-sky-200", "border-sky-600", "scale-105");
+            updateTiko(`Terima kasih sudah berbagi perasaanmu! Senang sekali bisa belajar bersama <b>${gameState.playerName}</b> hari ini!`, moodLabel, "excited");
+        }
+
+        function checkPledge() {
+            playSFX("success");
+            const checked = document.querySelectorAll("#section-6-reflection input[type='checkbox']:checked").length;
+            const msg = document.getElementById("pledge-thanks-msg");
+            if (checked > 0) {
+                msg.classList.remove("hidden");
+            } else {
+                msg.classList.add("hidden");
+            }
+        }
+
+        function resetGame() {
+            playSFX("click");
+            gameState.score = 0;
+            gameState.exploredTopics.clear();
+            gameState.roomsCompleted = { 1: false, 2: false, 3: false, 4: false };
+            gameState.currentRoom = 1;
+            gameState.quizIndex = 0;
+            gameState.quizCorrectCount = 0;
+
+            document.getElementById("hud-score").textContent = "0";
+            [1, 2, 3, 4].forEach(r => {
+                const badge = document.getElementById(`key-badge-${r}`);
+                badge.classList.add("opacity-30");
+                badge.classList.remove("scale-125");
+
+                const card = document.getElementById(`room-card-${r}`);
+                if (r === 1) {
+                    card.disabled = false;
+                    card.className = "p-4 rounded-3xl border-3 border-amber-400 bg-amber-50 hover:bg-amber-100 text-center transition shadow-sm relative";
+                    document.getElementById("room-status-1").textContent = "🔓";
+                    document.getElementById("room-tag-1").textContent = "Siap Dimainkan";
+                    document.getElementById("room-tag-1").className = "inline-block mt-2 text-xs font-bold bg-amber-200 text-amber-900 px-2.5 py-0.5 rounded-full";
+                } else {
+                    card.disabled = true;
+                    card.className = "p-4 rounded-3xl border-3 border-slate-300 bg-slate-100 text-center transition shadow-sm relative opacity-65";
+                    document.getElementById(`room-status-${r}`).textContent = "🔒";
+                    document.getElementById(`room-tag-${r}`).textContent = "Terkunci";
+                    document.getElementById(`room-tag-${r}`).className = "inline-block mt-2 text-xs font-bold bg-slate-200 text-slate-600 px-2.5 py-0.5 rounded-full";
+                }
+            });
+
+            document.getElementById("escape-gate-banner").classList.add("hidden");
+            document.getElementById("explored-count").textContent = "0 / 6";
+            const enterBtn = document.getElementById("btn-enter-escaperoom");
+            enterBtn.disabled = true;
+            enterBtn.innerHTML = `<span>🔐</span> Pelajari Semua Kartu Dulu (0/6)`;
+
+            ["evaporasi", "kondensasi", "presipitasi", "infiltrasi"].forEach(k => {
+                const b = document.getElementById(`btn-topic-${k}`);
+                if (b) {
+                    b.classList.add("hotspot-pulse");
+                    b.classList.remove("ring-4", "ring-emerald-400");
+                }
+            });
+            ["pengertian", "hemat"].forEach(k => {
+                const c = document.getElementById(`check-topic-${k}`);
+                if (c) c.textContent = "🔍";
+            });
+
+            goToSection(2);
+        }
+
+        // --- 7. EFEK KONFETI PERAYAAN ---
+        function launchConfetti() {
+            const canvas = document.getElementById("confetti-canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const colors = ["#0284c7", "#facc15", "#22c55e", "#f43f5e", "#a855f7", "#38bdf8"];
+            const pieces = Array.from({ length: 110 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                w: Math.random() * 10 + 6,
+                h: Math.random() * 6 + 4,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                vy: Math.random() * 3 + 2.5,
+                vx: Math.random() * 2 - 1,
+                rot: Math.random() * 360
+            }));
+
+            let frame = 0;
+            function animateConfetti() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.y += p.vy;
+                    p.x += p.vx;
+                    p.rot += 4;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.rot * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                    ctx.restore();
+                });
+                frame++;
+                if (frame < 190) {
+                    requestAnimationFrame(animateConfetti);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            animateConfetti();
+        }
+    </script>
+</body>
+</html>
